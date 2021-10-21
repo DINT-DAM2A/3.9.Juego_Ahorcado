@@ -22,9 +22,9 @@ namespace Ahorcado
         }
 
         /*
-         **************************
-         *GENERADORES AUTOMIATICOS*
-         **************************
+         ****************************
+         **GENERADORES DE CONTENIDO**
+         ****************************
          */
 
         //Funcion que devuelve una cadena aleatoria
@@ -79,26 +79,20 @@ namespace Ahorcado
                 //Añadimos Ñ al teclado despues de la N
                 if (i == 'N')
                 {
-                    AgregarEnye();
+                    TextBlock caja1 = new TextBlock();
+                    caja.Text = "Ñ";
+
+                    Viewbox vBox1 = new Viewbox();
+                    vBox.Child = caja1;
+
+                    Button btn1 = new Button();
+                    btn1.Tag = "Ñ";
+                    btn1.Content = vBox1;
+                    btn1.Click += Button_Click;
+
+                    _ = TecladoUniformGrid.Children.Add(btn1);
                 }
             }
-        }
-
-        //Funcion que añade la Ñ al teclado del UniformGrid
-        private void AgregarEnye()
-        {
-            TextBlock caja = new TextBlock();
-            caja.Text = "Ñ";
-
-            Viewbox vBox = new Viewbox();
-            vBox.Child = caja;
-
-            Button btn = new Button();
-            btn.Tag = "Ñ";
-            btn.Content = vBox;
-            btn.Click += Button_Click;
-
-            _ = TecladoUniformGrid.Children.Add(btn);
         }
 
         //Funcion que sustituye las letras por guiones bajos '_'
@@ -137,9 +131,9 @@ namespace Ahorcado
 
 
         /*
-         **********************
-         *FUNCIONES DE CONTROL*
-         **********************
+         ************************
+         **FUNCIONES DE CONTROL**
+         ************************
          */
 
 
@@ -193,7 +187,7 @@ namespace Ahorcado
             AhorcadoImage.Source = bmi;
         }
 
-        //Funcion que deshabilita botones pulsados
+        //Funcion que deshabilita botones (teclas del teclado virtual de App)
         private void DeschabilitarBotonesPulsados(string letraBotonPulsado)
         {
             if (letraBotonPulsado.Equals("todos"))
@@ -245,40 +239,7 @@ namespace Ahorcado
             }
         }
 
-        /*
-         *********
-         *EVENTOS*
-         *********
-         */
-
-        //Evento de Clicar sobre el boton (tecla) de la App
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            char caracter = (sender as Button).Tag.ToString().ToLower()[0];
-
-            MostrarLetrasAdivinadas(caracter);
-
-            (sender as Button).IsEnabled = false;
-
-            RevisarEstadoPartida();
-        }
-
-        //Evento de pulsacion de tecla del teclado real
-        private void Window_KeyDown(object sender, KeyEventArgs e)
-        {
-            MostrarLetrasAdivinadas(e.Key.ToString().ToLower()[0]);
-
-            DeschabilitarBotonesPulsados(e.Key.ToString());
-
-            //Antes de comprobar el estado de partida, se comprueba
-            //que no este finalizada. Asi se evita repetir los avisos.
-            if (!haGanado && !seHaRendido && !haPerdido)
-            {
-                RevisarEstadoPartida();
-            }
-        }
-
-        private void NuevaPartidaButton_Click(object sender, RoutedEventArgs e)
+        private void NuevaPartida()
         {
             //Habila botones
             foreach (Button boton in TecladoUniformGrid.Children)
@@ -302,6 +263,60 @@ namespace Ahorcado
             ActualizarImagen();
         }
 
+
+        /*
+         ****************************
+         **CONTROLADORES DE EVENTOS**
+         ****************************
+         */
+
+
+        //Evento de Clicar sobre el boton (tecla virtual) de la App
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            char caracter = (sender as Button).Tag.ToString().ToLower()[0];
+
+            MostrarLetrasAdivinadas(caracter);
+
+            (sender as Button).IsEnabled = false;
+
+            RevisarEstadoPartida();
+        }
+
+        //Evento de Pulsacion de tecla del teclado real
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete)
+            {
+                seHaRendido = true;
+                RevisarEstadoPartida();
+            }
+            else if (e.Key == Key.Insert)
+            {
+                NuevaPartida();
+            }
+            else
+            {
+                MostrarLetrasAdivinadas(e.Key.ToString().ToLower()[0]);
+
+                DeschabilitarBotonesPulsados(e.Key.ToString());
+
+                //Antes de comprobar el estado de partida, se comprueba
+                //que no este finalizada. Asi se evita repetir los avisos.
+                if (!haGanado && !seHaRendido && !haPerdido)
+                {
+                    RevisarEstadoPartida();
+                }
+            }
+        }
+
+        //Evento del boton de iniciar nueva partida
+        private void NuevaPartidaButton_Click(object sender, RoutedEventArgs e)
+        {
+            NuevaPartida();
+        }
+
+        //Evento del boton de rendirse
         private void RendirseButton_Click(object sender, RoutedEventArgs e)
         {
             if (!seHaRendido && !haGanado)
