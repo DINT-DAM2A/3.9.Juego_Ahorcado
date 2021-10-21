@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -7,25 +6,61 @@ using System.Windows.Media.Imaging;
 
 namespace Ahorcado
 {
-    /// <summary>
-    /// Lógica de interacción para MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
-        int countError = 0;
-        int maxError = 6
-            ;
+        private int countError = 0;
+        private const int MAX_ERROR = 6;
+        private bool seHaRendido = false;
+        private bool haGanado = false;
+        private bool haPerdido = false;
+
         public MainWindow()
         {
             InitializeComponent();
-            generarTeclado();
-            generarEspaciosLetrasAdivinadas();
+            GenerarTeclado();
+            GenerarEspaciosLetrasAdivinar(GenerarPalabra());
+        }
+
+        /*
+         **************************
+         *GENERADORES AUTOMIATICOS*
+         **************************
+         */
+
+        //Funcion que devuelve una cadena aleatoria
+        private string GenerarPalabra()
+        {
+            string[] poema = new string[]{
+                "Es hielo abrasador, es fuego helado,",
+                "es herida que duele y no se siente,",
+                "es un soñado bien, un mal presente,",
+                "es un breve descanso muy cansado.",
+
+                "Es un descuido que nos da cuidado,",
+                "un cobarde con nombre de valiente,",
+                "un andar solitario entre la gente,",
+                "un amar solamente ser amado.",
+
+                "Es una libertad encarcelada,",
+                "que dura hasta el postrero paroxismo",
+                "enfermedad que crece si es curada.",
+
+                "Este es el niño Amor, este es su abismo.",
+                "¡Mirad cual amistad tendra con nada",
+                "el que en todo es contrario de si mismo!"
+            };
+
+            Random rm = new Random();
+            int numAleatorio = rm.Next(0, poema.Length);
+
+            string palabra = poema[numAleatorio];
+
+            return palabra;
         }
 
         //Funcion que genera el teclado y lo agrega al UniformGrid
-        private void generarTeclado()
+        private void GenerarTeclado()
         {
-
             for (char i = 'A'; i <= 'Z'; i++)
             {
                 TextBlock caja = new TextBlock();
@@ -39,18 +74,18 @@ namespace Ahorcado
                 btn.Content = vBox;
                 btn.Click += Button_Click;
 
-                tecladoUniformGrid.Children.Add(btn);
+                _ = TecladoUniformGrid.Children.Add(btn);
 
                 //Añadimos Ñ al teclado despues de la N
                 if (i == 'N')
                 {
-                    agregarEnye();
+                    AgregarEnye();
                 }
             }
         }
 
-        //Funcion que añade la Ñ al teclado de la UniformGrid
-        private void agregarEnye()
+        //Funcion que añade la Ñ al teclado del UniformGrid
+        private void AgregarEnye()
         {
             TextBlock caja = new TextBlock();
             caja.Text = "Ñ";
@@ -61,31 +96,31 @@ namespace Ahorcado
             Button btn = new Button();
             btn.Tag = "Ñ";
             btn.Content = vBox;
+            btn.Click += Button_Click;
 
-            tecladoUniformGrid.Children.Add(btn);
+            _ = TecladoUniformGrid.Children.Add(btn);
         }
 
-        //Sustituye las letras por guiones bajos '_' y los agrega dentro
-        //del StackPanel encapsulados dentro de TextBlock/ViewBox 
-        private void generarEspaciosLetrasAdivinadas()
+        //Funcion que sustituye las letras por guiones bajos '_'
+        private void GenerarEspaciosLetrasAdivinar(string cadena)
         {
-            String palabra = "Hola que tal como estas muy bien y tu hhh";
-
-            for (int i = 0; i < palabra.Length; i++)
+            for (int i = 0; i < cadena.Length; i++)
             {
-                if (palabra[i] != ' ')
+                if (cadena[i] != ' ' && cadena[i] != '.' && cadena[i] != ','
+                    && cadena[i] != '!' && cadena[i] != '¡'
+                    && cadena[i] != '?' && cadena[i] != '¿')
                 {
                     TextBlock caja = new TextBlock();
                     caja.Text = Convert.ToString("_");
-                    caja.Tag = palabra[i].ToString();
+                    caja.Tag = cadena[i].ToString();
 
                     Viewbox vBox = new Viewbox();
                     vBox.Child = caja;
                     vBox.Margin = new Thickness(1);
 
-                    letrasAdivinadasStackPanel.Children.Add(vBox);
+                    _ = LetrasAdivinadasStackPanel.Children.Add(vBox);
                 }
-                else
+                else if (cadena[i] == ' ')
                 {
                     TextBlock caja = new TextBlock();
                     caja.Text = Convert.ToString(" ");
@@ -94,89 +129,187 @@ namespace Ahorcado
                     Viewbox vBox = new Viewbox();
                     vBox.Child = caja;
 
-                    letrasAdivinadasStackPanel.Children.Add(vBox);
+                    _ = LetrasAdivinadasStackPanel.Children.Add(vBox);
                 }
             }
 
         }
 
-        //Recorre los TextBlock que estan dentro de letrasAdivinadasStackPanel
-        //y comprueba su Tag con la letra que se le pasa como argumento
-        //En caso que coincidan, le pasa el contenido de Tag al Texto del mismo TextBlock
-        private void mostrarLetrasAdivinadas(Char letra)
+
+        /*
+         **********************
+         *FUNCIONES DE CONTROL*
+         **********************
+         */
+
+
+        //Funcion que busca la letra dentro de la cadena a adivinar
+        private void MostrarLetrasAdivinadas(char letra)
         {
-            Boolean encontrado = false;
-            List<TextBlock> listaTextBlock = new List<TextBlock>();
+            bool encontrado = false;
+            haGanado = true;
 
-            //Crea la lista de los TextBlock, hijos de letrasAdivinadasStackPanel
-            foreach (Viewbox vBox in letrasAdivinadasStackPanel.Children)
+            //Busca coincidencia
+            foreach (Viewbox vBox in LetrasAdivinadasStackPanel.Children)
             {
-                listaTextBlock.Add((TextBlock)vBox.Child);
-            }
+                TextBlock tb = (TextBlock)vBox.Child;
 
-            //Recorre la Lista de TextBlock y comprueba si alguno coincide
-            //con la letra intorducida. Si coincide, la muestra.
-            foreach (TextBlock textBox in listaTextBlock)
-            {
-                String caracter = (String)textBox.Tag;
+                string tagChar = (string)tb.Tag;
 
-                if (Convert.ToChar(caracter.ToLower()) == letra)
+                if (Convert.ToChar(tagChar.ToLower()) == letra)
                 {
-                    textBox.Text = (String)textBox.Tag;
+                    tb.Text = (string)tb.Tag;
                     encontrado = true;
+                }
+
+                if (tb.Text.Equals("_"))
+                {
+                    haGanado = false;
                 }
             }
 
-            //Si la letra introducida no se encuentra en la frase para adivinar,
-            //aumenta contador de errores y sustituye la imagen del Ahorcado
+            //Actualiza contador de Errores y la imagen
             if (!encontrado)
             {
                 countError++;
+                ActualizarImagen();
 
-                String urlImg = @"img/" + Convert.ToString(countError + 4) + ".jpg";
-                BitmapImage bmi = new BitmapImage();
-                bmi.BeginInit();
-                bmi.UriSource = new Uri(urlImg, UriKind.Relative);
-                bmi.EndInit();
-
-                ahorcadoImage.Source = bmi;
-                Console.Out.WriteLine("URL: " + ahorcadoImage.Source);
+                if (countError >= MAX_ERROR)
+                {
+                    haPerdido = true;
+                }
             }
         }
 
-        //Recorre los Botones de tecladoUniformGrid y comprueba su Tag
-        //con la cadena que se le pasa como argumento.
-        //En caso que coincida, deshabilita el Boton de tecladoUniformGrid
-        private void ocultarBotonesPulsados(String btnInput)
+        //Funcion que Actualiza Imagen del Ahorcado
+        private void ActualizarImagen()
         {
-            foreach (Button boton in tecladoUniformGrid.Children)
+            string urlImg = @"img/" + Convert.ToString(countError + 4) + ".jpg";
+            BitmapImage bmi = new BitmapImage();
+            bmi.BeginInit();
+            bmi.UriSource = new Uri(urlImg, UriKind.Relative);
+            bmi.EndInit();
+
+            AhorcadoImage.Source = bmi;
+        }
+
+        //Funcion que deshabilita botones pulsados
+        private void DeschabilitarBotonesPulsados(string letraBotonPulsado)
+        {
+            if (letraBotonPulsado.Equals("todos"))
             {
-                if (boton.Tag.ToString().ToLower().Equals(btnInput.ToLower()))
+                foreach (Button boton in TecladoUniformGrid.Children)
                 {
                     boton.IsEnabled = false;
                 }
             }
+            else
+            {
+                foreach (Button boton in TecladoUniformGrid.Children)
+                {
+                    if (boton.Tag.ToString().ToLower().Equals(letraBotonPulsado.ToLower()))
+                    {
+                        boton.IsEnabled = false;
+                    }
+                }
+            }
         }
+
+        //Funcion de finalizar partida si se cumple alguna condicion
+        private void RevisarEstadoPartida()
+        {
+            //Se ha rendido
+            if (seHaRendido)
+            {
+                //Muestra el texto que tenia que adivinar
+                foreach (Viewbox vBox in LetrasAdivinadasStackPanel.Children)
+                {
+                    TextBlock tb = (TextBlock)vBox.Child;
+                    tb.Text = (string)tb.Tag;
+                }
+
+                DeschabilitarBotonesPulsados("todos");
+                _ = MessageBox.Show("Partida finalizada.", "Te has rendido", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            }
+            //Ha ganado
+            else if (haGanado)
+            {
+                DeschabilitarBotonesPulsados("todos");
+                _ = MessageBox.Show("¡Enhorabuena! \nHa adivinado la frase.", "¡Victoria!", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            //Ha perdido
+            else if (haPerdido)
+            {
+                DeschabilitarBotonesPulsados("todos");
+                _ = MessageBox.Show("Ha agotado todos los intentos.", "Has perdido", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /*
+         *********
+         *EVENTOS*
+         *********
+         */
 
         //Evento de Clicar sobre el boton (tecla) de la App
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            //Convierte el Tag del boton a caracter en minusculas
             char caracter = (sender as Button).Tag.ToString().ToLower()[0];
-            mostrarLetrasAdivinadas(caracter);
 
-            //Deshabilita el boton al pulsarlo
+            MostrarLetrasAdivinadas(caracter);
+
             (sender as Button).IsEnabled = false;
+
+            RevisarEstadoPartida();
         }
 
         //Evento de pulsacion de tecla del teclado real
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            //Le pasa el primer caracter en minusculas del boton pulsado
-            mostrarLetrasAdivinadas(e.Key.ToString().ToLower()[0]);
+            MostrarLetrasAdivinadas(e.Key.ToString().ToLower()[0]);
 
-            //Le pasa nombre(valor) del boton pulsado
-            ocultarBotonesPulsados(e.Key.ToString());
+            DeschabilitarBotonesPulsados(e.Key.ToString());
+
+            //Antes de comprobar el estado de partida, se comprueba
+            //que no este finalizada. Asi se evita repetir los avisos.
+            if (!haGanado && !seHaRendido && !haPerdido)
+            {
+                RevisarEstadoPartida();
+            }
+        }
+
+        private void NuevaPartidaButton_Click(object sender, RoutedEventArgs e)
+        {
+            //Habila botones
+            foreach (Button boton in TecladoUniformGrid.Children)
+            {
+                boton.IsEnabled = true;
+            }
+
+            //Borra la frase generada
+            LetrasAdivinadasStackPanel.Children.Clear();
+
+            //Generar nueva frase 
+            GenerarEspaciosLetrasAdivinar(GenerarPalabra());
+
+            //Retesea contador de intentos y variables
+            countError = 0;
+            seHaRendido = false;
+            haGanado = false;
+            haPerdido = false;
+
+            //Actualiza la imagen del ahorcado
+            ActualizarImagen();
+        }
+
+        private void RendirseButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!seHaRendido && !haGanado)
+            {
+                countError = 0;
+                seHaRendido = true;
+                RevisarEstadoPartida();
+            }
         }
     }
 }

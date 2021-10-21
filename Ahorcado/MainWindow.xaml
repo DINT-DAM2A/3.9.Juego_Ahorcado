@@ -20,7 +20,7 @@
         </Grid.RowDefinitions>
 
         <!--Imagen del Ahorcado-->
-        <Image x:Name="ahorcadoImage" Source="img/4.jpg" Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" HorizontalAlignment="Left" Margin="20"></Image>
+        <Image x:Name="AhorcadoImage" Source="img/4.jpg" Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" HorizontalAlignment="Left" Margin="20"></Image>
 
         <!--Botones Elasticos Centrados debajo de imagen-->
         <Grid Grid.Column="0" Grid.Row="3">
@@ -36,8 +36,8 @@
                 <RowDefinition Height="4*"></RowDefinition>
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
-            <Button Grid.Column="1" Grid.Row="1">Nueva partida</Button>
-            <Button Grid.Column="3" Grid.Row="1">Rendirse</Button>
+            <Button x:Name="NuevaPartidaButton" Grid.Column="1" Grid.Row="1" Click="NuevaPartidaButton_Click" >Nueva partida</Button>
+            <Button x:Name="RendirseButton" Grid.Column="3" Grid.Row="1" Click="RendirseButton_Click">Rendirse</Button>
         </Grid>
 
         <!--Nombre del juego en TextBlock-->
@@ -47,11 +47,11 @@
 
         <!--Bloque de letras adivinadas-->
         <Viewbox  Grid.Column="1" Grid.Row="1" Margin="0,10,20,10">
-            <StackPanel x:Name="letrasAdivinadasStackPanel" Orientation="Horizontal"></StackPanel>
+            <StackPanel x:Name="LetrasAdivinadasStackPanel" Orientation="Horizontal"></StackPanel>
         </Viewbox>
 
-            <!--Teclado Autogenerado-->
-        <UniformGrid x:Name="tecladoUniformGrid" Grid.Column="1" Grid.Row="2" Margin="0,10,20,10"></UniformGrid>
-        
+        <!--Teclado Autogenerado-->
+        <UniformGrid x:Name="TecladoUniformGrid" Grid.Column="1" Grid.Row="2" Margin="0,10,20,10"></UniformGrid>
+
     </Grid>
 </Window>
