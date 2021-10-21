@@ -80,10 +80,10 @@ namespace Ahorcado
                 if (i == 'N')
                 {
                     TextBlock caja1 = new TextBlock();
-                    caja.Text = "Ñ";
+                    caja1.Text = "Ñ";
 
                     Viewbox vBox1 = new Viewbox();
-                    vBox.Child = caja1;
+                    vBox1.Child = caja1;
 
                     Button btn1 = new Button();
                     btn1.Tag = "Ñ";
@@ -288,25 +288,23 @@ namespace Ahorcado
         {
             if (e.Key == Key.Delete)
             {
-                seHaRendido = true;
-                RevisarEstadoPartida();
+                if (!seHaRendido && !haGanado)
+                {
+                    seHaRendido = true;
+                    RevisarEstadoPartida();
+                }
             }
             else if (e.Key == Key.Insert)
             {
                 NuevaPartida();
             }
-            else
+            else if (!haGanado && !seHaRendido && !haPerdido)
             {
                 MostrarLetrasAdivinadas(e.Key.ToString().ToLower()[0]);
 
                 DeschabilitarBotonesPulsados(e.Key.ToString());
 
-                //Antes de comprobar el estado de partida, se comprueba
-                //que no este finalizada. Asi se evita repetir los avisos.
-                if (!haGanado && !seHaRendido && !haPerdido)
-                {
-                    RevisarEstadoPartida();
-                }
+                RevisarEstadoPartida();
             }
         }
 
