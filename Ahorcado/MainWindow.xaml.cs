@@ -104,29 +104,27 @@ namespace Ahorcado
                     && cadena[i] != '!' && cadena[i] != '¡'
                     && cadena[i] != '?' && cadena[i] != '¿')
                 {
-                    TextBlock caja = new TextBlock();
-                    caja.Text = Convert.ToString("_");
-                    caja.Tag = cadena[i].ToString();
-
-                    Viewbox vBox = new Viewbox();
-                    vBox.Child = caja;
-                    vBox.Margin = new Thickness(1);
-
-                    _ = LetrasAdivinadasStackPanel.Children.Add(vBox);
+                    generarLetraAdivinar(cadena[i], '_');
                 }
-                else if (cadena[i] == ' ')
+                else
                 {
-                    TextBlock caja = new TextBlock();
-                    caja.Text = Convert.ToString(" ");
-                    caja.Tag = " ";
-
-                    Viewbox vBox = new Viewbox();
-                    vBox.Child = caja;
-
-                    _ = LetrasAdivinadasStackPanel.Children.Add(vBox);
+                    generarLetraAdivinar(cadena[i], cadena[i]);
                 }
             }
+        }
 
+        //Funcion que diseña un letra de la cadena a adivinar y la inserta
+        private void generarLetraAdivinar(char letra, char caracterEspecial)
+        {
+            TextBlock caja = new TextBlock();
+            caja.Text = caracterEspecial.ToString();
+            caja.Tag = letra.ToString();
+
+            Viewbox vBox = new Viewbox();
+            vBox.Child = caja;
+            vBox.Margin = new Thickness(1);
+
+            _ = LetrasAdivinadasStackPanel.Children.Add(vBox);
         }
 
 
@@ -221,7 +219,7 @@ namespace Ahorcado
                     TextBlock tb = (TextBlock)vBox.Child;
                     tb.Text = (string)tb.Tag;
                 }
-
+                _ = LetrasAdivinadasStackPanel.Style = (Style)Resources["FondoRojo"];
                 DeschabilitarBotonesPulsados("todos");
                 _ = MessageBox.Show("Partida finalizada.", "Te has rendido", MessageBoxButton.OK, MessageBoxImage.Exclamation);
             }
@@ -241,6 +239,7 @@ namespace Ahorcado
 
         private void NuevaPartida()
         {
+            _ = LetrasAdivinadasStackPanel.Style = (Style)Resources["FondoBlanco"];
             //Habila botones
             foreach (Button boton in TecladoUniformGrid.Children)
             {
@@ -308,20 +307,21 @@ namespace Ahorcado
             }
         }
 
-        //Evento del boton de iniciar nueva partida
-        private void NuevaPartidaButton_Click(object sender, RoutedEventArgs e)
+        //Evento de botones Nueva Partida y Rendirse
+        private void Button_Click_Options(object sender, RoutedEventArgs e)
         {
-            NuevaPartida();
-        }
-
-        //Evento del boton de rendirse
-        private void RendirseButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (!seHaRendido && !haGanado)
+            if ((sender as Button).Tag.ToString().Equals("new"))
             {
-                countError = 0;
-                seHaRendido = true;
-                RevisarEstadoPartida();
+                NuevaPartida();
+            }
+            if ((sender as Button).Tag.ToString().Equals("surrender"))
+            {
+                if (!seHaRendido && !haGanado)
+                {
+                    countError = 0;
+                    seHaRendido = true;
+                    RevisarEstadoPartida();
+                }
             }
         }
     }
