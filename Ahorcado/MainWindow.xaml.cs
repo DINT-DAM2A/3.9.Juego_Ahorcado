@@ -136,7 +136,7 @@ namespace Ahorcado
 
 
         //Funcion que busca la letra dentro de la cadena a adivinar
-        private void MostrarLetrasAdivinadas(char letra)
+        private void MostrarLetrasAdivinadas(string letra)
         {
             bool encontrado = false;
             haGanado = true;
@@ -148,7 +148,7 @@ namespace Ahorcado
 
                 string tagChar = (string)tb.Tag;
 
-                if (Convert.ToChar(tagChar.ToLower()) == letra)
+                if (tagChar.ToLower().Equals(letra.ToLower()))
                 {
                     tb.Text = (string)tb.Tag;
                     encontrado = true;
@@ -186,9 +186,9 @@ namespace Ahorcado
         }
 
         //Funcion que deshabilita botones (teclas del teclado virtual de App)
-        private void DeschabilitarBotonesPulsados(string letraBotonPulsado)
+        private void DeschabilitarBotonesPulsados(string letraPulsada)
         {
-            if (letraBotonPulsado.Equals("todos"))
+            if (letraPulsada.Equals("todos"))
             {
                 foreach (Button boton in TecladoUniformGrid.Children)
                 {
@@ -199,7 +199,7 @@ namespace Ahorcado
             {
                 foreach (Button boton in TecladoUniformGrid.Children)
                 {
-                    if (boton.Tag.ToString().ToLower().Equals(letraBotonPulsado.ToLower()))
+                    if (boton.Tag.ToString().ToLower().Equals(letraPulsada.ToLower()))
                     {
                         boton.IsEnabled = false;
                     }
@@ -273,9 +273,9 @@ namespace Ahorcado
         //Evento de Clicar sobre el boton (tecla virtual) de la App
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            char caracter = (sender as Button).Tag.ToString().ToLower()[0];
+            string letra = (sender as Button).Tag.ToString();
 
-            MostrarLetrasAdivinadas(caracter);
+            MostrarLetrasAdivinadas(letra);
 
             (sender as Button).IsEnabled = false;
 
@@ -299,7 +299,7 @@ namespace Ahorcado
             }
             else if (!haGanado && !seHaRendido && !haPerdido)
             {
-                MostrarLetrasAdivinadas(e.Key.ToString().ToLower()[0]);
+                MostrarLetrasAdivinadas(e.Key.ToString());
 
                 DeschabilitarBotonesPulsados(e.Key.ToString());
 
